@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class UserMealsUtil {
@@ -24,8 +26,14 @@ public class UserMealsUtil {
 
         List<UserMealWithExcess> mealsTo = filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
-
+        System.out.println();
         System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+        System.out.println();
+        System.out.println(filteredByLoopsOnePass(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+        System.out.println();
+        System.out.println(filteredByStreamOnPass(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+        System.out.println();
+        System.out.println(filteredByStreamOnPassWithCustomCollector(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -54,7 +62,55 @@ public class UserMealsUtil {
                 .collect(Collectors.toList());
     }
 
+    public static List<UserMealWithExcess> filteredByLoopsOnePass(List<UserMeal> meals, LocalTime startTime,
+                                                                  LocalTime endTime, int caloriesPerDay) {
+        Map<LocalDate, UserMealsAccumulator> groupedMeals = new HashMap<>();
+        for (UserMeal userMeal : meals) {
+            UserMealsAccumulator mealsAccumulator = groupedMeals.get(userMeal.getDate());
+            if (mealsAccumulator == null) {
+                mealsAccumulator = new UserMealsAccumulator();
+                groupedMeals.put(userMeal.getDate(), mealsAccumulator);
+            }
+            mealsAccumulator.addMealWithFilter(userMeal, startTime, endTime);
+        }
+        List<UserMealWithExcess> mealsTo = new ArrayList<>();
+        for (UserMealsAccumulator mealsAccumulator : groupedMeals.values()) {
+            for (UserMeal meal : mealsAccumulator.getMeals()) {
+                mealsTo.add(convertToMealWithExcess(meal, mealsAccumulator.isExcess(caloriesPerDay)));
+            }
+        }
+        return mealsTo;
+    }
+
+    public static List<UserMealWithExcess> filteredByStreamOnPass(List<UserMeal> meals, LocalTime startTime,
+                                                                  LocalTime endTime, int caloriesPerDay) {
+        return meals.stream()
+                .collect(Collectors.groupingBy(UserMeal::getDate))
+                .values().stream()
+                .flatMap(group -> {
+                    boolean excess = group.stream().mapToInt(UserMeal::getCalories).sum() > caloriesPerDay;
+                    return group.stream()
+                            .filter(meal -> TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime))
+                            .map(meal -> convertToMealWithExcess(meal, excess));
+                })
+                .collect(Collectors.toList());
+    }
+
+    public static List<UserMealWithExcess> filteredByStreamOnPassWithCustomCollector(List<UserMeal> meals, LocalTime startTime,
+                                                                                     LocalTime endTime, int caloriesPerDay) {
+        return meals.stream()
+                .collect(Collectors.groupingBy(UserMeal::getDate, Collector.of(UserMealsAccumulator::new,
+                        ((mealsAccumulator, userMeal) -> mealsAccumulator.addMealWithFilter(userMeal, startTime, endTime)),
+                        (UserMealsAccumulator::sumAnother),
+                        mealsAccumulator -> mealsAccumulator.getMeals().stream().map(meal -> convertToMealWithExcess(meal,
+                                mealsAccumulator.isExcess(caloriesPerDay)))))).values()
+                .stream()
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
     private static UserMealWithExcess convertToMealWithExcess(UserMeal userMeal, boolean excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
     }
+
 }
