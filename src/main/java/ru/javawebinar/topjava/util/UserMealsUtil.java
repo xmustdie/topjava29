@@ -35,10 +35,10 @@ public class UserMealsUtil {
         }
         final List<UserMealWithExcess> mealTos = new ArrayList<>();
         for (UserMeal meal : meals) {
-            final boolean isBetween = TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime);
+            boolean isBetween = TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime);
             if (isBetween) {
-                final boolean excess = caloriesMap.get(meal.getDate()) > caloriesPerDay;
-                mealTos.add(ConvertToMealWithExcess(meal, excess));
+                boolean excess = caloriesMap.get(meal.getDate()) > caloriesPerDay;
+                mealTos.add(convertToMealWithExcess(meal, excess));
             }
         }
         return mealTos;
@@ -50,11 +50,11 @@ public class UserMealsUtil {
                         Collectors.summingInt(UserMeal::getCalories)));
         return meals.stream()
                 .filter(m -> TimeUtil.isBetweenHalfOpen(m.getTime(), startTime, endTime))
-                .map(m -> ConvertToMealWithExcess(m, caloriesMap.get(m.getDate()) > caloriesPerDay))
+                .map(m -> convertToMealWithExcess(m, caloriesMap.get(m.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
 
-    private static UserMealWithExcess ConvertToMealWithExcess(UserMeal userMeal, boolean excess) {
+    private static UserMealWithExcess convertToMealWithExcess(UserMeal userMeal, boolean excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
     }
 }
