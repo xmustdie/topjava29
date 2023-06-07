@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.repository.memoryrepository;
+package ru.javawebinar.topjava.repository.memory;
 
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
@@ -43,11 +43,11 @@ public class MemoryMealRepository implements MealRepository {
     @Override
     public Meal save(Meal meal) {
         if (meal.isNew()) {
-            meal.setId(getCounter());
+            meal.setId(getNextId());
             storage.put(meal.getId(), meal);
             return meal;
         }
-        return storage.computeIfPresent(meal.getId(), (m1, m2) -> meal);
+        return storage.computeIfPresent(meal.getId(), (k, v) -> meal);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MemoryMealRepository implements MealRepository {
         storage.remove(id);
     }
 
-    private int getCounter() {
+    private int getNextId() {
         return counter.incrementAndGet();
     }
 }

@@ -6,7 +6,7 @@
 <html>
 <body>
 <%--@elvariable id="meal" type="ru.javawebinar.topjava.model.Meal"--%>
-<c:set var="operation" value="${empty meal.id || meal.id == 0 ? 'Edit' : 'Create' }"/>
+<c:set var="operation" value="${empty meal.id ? 'Create' : 'Edit' }"/>
 <h2> ${operation} meal</h2>
 
 <form method="POST" action='meals' name="addMeal">
@@ -39,8 +39,8 @@
                 <c:url var="saveButton" value="meals"/>
                 <input type="submit" value="Save"/>
                 <c:url var="cancelButton" value="meals"/>
-                <input type="button" value="Cancel" onclick="window.location.href =
-                        '${cancelButton}'"/>
+                <input type="button" value="Cancel"
+                       onclick="window.location.href ='${cancelButton}'"/>
             </td>
         </tr>
     </table>
