@@ -36,7 +36,6 @@
         <tr>
             <td width="180px"></td>
             <td>
-                <c:url var="saveButton" value="meals"/>
                 <input type="submit" value="Save"/>
                 <c:url var="cancelButton" value="meals"/>
                 <input type="button" value="Cancel"
