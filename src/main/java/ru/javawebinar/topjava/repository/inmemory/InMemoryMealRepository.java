@@ -7,9 +7,9 @@ import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,13 +30,17 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal save(int userId, Meal meal) {
-        final Map<Integer, Meal> meals = repository.computeIfAbsent(userId, ConcurrentHashMap::new);
+        final Map<Integer, Meal> meals = repository.computeIfAbsent(userId, u -> new ConcurrentHashMap<>());
         if (meal.isNew()) {
             meal.setId(getNextId());
             meals.put(meal.getId(), meal);
             return meal;
         }
         return meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+    }
+
+    private int getNextId() {
+        return counter.incrementAndGet();
     }
 
     @Override
@@ -52,21 +56,18 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public Collection<Meal> getAll(int userId) {
+    public List<Meal> getAll(int userId) {
         return getAllByInterval(userId, null, null);
     }
 
-    public Collection<Meal> getAllByInterval(int userId, LocalDate startDate, LocalDate endDate) {
+    @Override
+    public List<Meal> getAllByInterval(int userId, LocalDate startDate, LocalDate endDate) {
         Map<Integer, Meal> meals = repository.get(userId);
         return meals == null ? Collections.emptyList() :
                 meals.values().stream()
                         .filter(meal -> DateTimeUtil.isBetweenDates(meal.getDate(), startDate, endDate))
                         .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                         .collect(Collectors.toList());
-    }
-
-    private int getNextId() {
-        return counter.incrementAndGet();
     }
 }
 

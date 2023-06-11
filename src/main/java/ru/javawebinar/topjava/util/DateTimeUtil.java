@@ -14,12 +14,12 @@ public class DateTimeUtil {
         return (startTime == null || lt.compareTo(startTime) >= 0) && (endTime == null || lt.compareTo(endTime) < 0);
     }
 
-    public static String toString(LocalDateTime ldt) {
-        return ldt == null ? "" : ldt.format(DATE_TIME_FORMATTER);
-    }
-
     public static boolean isBetweenDates(LocalDate date, LocalDate startDate, LocalDate endDate) {
         return (startDate == null || date.compareTo(startDate) >= 0) && (endDate == null || date.compareTo(endDate) <= 0);
+    }
+
+    public static String toString(LocalDateTime ldt) {
+        return ldt == null ? "" : ldt.format(DATE_TIME_FORMATTER);
     }
 
     public static LocalTime convertToLocaltime(String time) {
