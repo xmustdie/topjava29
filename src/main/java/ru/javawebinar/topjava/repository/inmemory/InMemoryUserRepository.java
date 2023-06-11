@@ -38,6 +38,10 @@ public class InMemoryUserRepository implements UserRepository {
         return usersMap.computeIfPresent(user.getId(), (id, oldUser) -> user);
     }
 
+    private int getNextId() {
+        return counter.incrementAndGet();
+    }
+
     @Override
     public User get(int id) {
         log.info("get {}", id);
@@ -59,9 +63,5 @@ public class InMemoryUserRepository implements UserRepository {
                 .filter(user -> email.equalsIgnoreCase(user.getEmail()))
                 .findFirst()
                 .orElse(null);
-    }
-
-    private int getNextId() {
-        return counter.incrementAndGet();
     }
 }
