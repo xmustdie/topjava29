@@ -18,7 +18,7 @@ import static ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository.
 import static ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository.USER_ID;
 
 @Repository
-public class InMemoryMealRepository extends AbstractInMemoryRepository<Meal> implements MealRepository {
+public class InMemoryMealRepository implements MealRepository {
     private final Map<Integer, AbstractInMemoryRepository<Meal>> storage = new ConcurrentHashMap<>();
 
     {
@@ -34,14 +34,14 @@ public class InMemoryMealRepository extends AbstractInMemoryRepository<Meal> imp
 
     @Override
     public boolean delete(int userId, int id) {
-        return storage.computeIfAbsent(userId, u -> new AbstractInMemoryRepository<Meal>() {
-        }).delete(id);
+        AbstractInMemoryRepository<Meal> meals = storage.get(userId);
+        return meals != null && meals.delete(id);
     }
 
     @Override
     public Meal get(int userId, int id) {
-        return storage.computeIfAbsent(userId, u -> new AbstractInMemoryRepository<Meal>() {
-        }).get(id);
+        AbstractInMemoryRepository<Meal> meals = storage.get(userId);
+        return meals == null ? null : meals.get(id);
     }
 
     @Override
