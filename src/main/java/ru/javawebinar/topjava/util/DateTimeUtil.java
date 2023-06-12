@@ -11,11 +11,19 @@ public class DateTimeUtil {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static boolean isBetweenHalfOpen(LocalTime lt, LocalTime startTime, LocalTime endTime) {
-        return (startTime == null || lt.compareTo(startTime) >= 0) && (endTime == null || lt.compareTo(endTime) < 0);
+        return isBetweenRightExclusive(lt, startTime, endTime);
     }
 
     public static boolean isBetweenDates(LocalDate date, LocalDate startDate, LocalDate endDate) {
-        return (startDate == null || date.compareTo(startDate) >= 0) && (endDate == null || date.compareTo(endDate) <= 0);
+        return isBetweenRightExclusive(date, startDate, endDate == null ? null : endDate.plusDays(1));
+    }
+
+    public static boolean isBetweenLocalDateTimes(LocalDateTime ldt, LocalTime start, LocalTime end) {
+        return isBetweenRightExclusive(ldt.toLocalTime(), start, end);
+    }
+
+    private static <T extends Comparable<T>> boolean isBetweenRightExclusive(T value, T start, T end) {
+        return (start == null || value.compareTo(start) >= 0) && (end == null || value.compareTo(end) < 0);
     }
 
     public static String toString(LocalDateTime ldt) {

@@ -12,16 +12,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository.ADMIN_ID;
 import static ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository.USER_ID;
 
 @Repository
-public class InMemoryMealRepository implements MealRepository {
-    private final Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
-    private final AtomicInteger counter = new AtomicInteger(0);
+public class InMemoryMealRepository extends AbstractInMemoryRepository<Meal> implements MealRepository {
+    private final Map<Integer, AbstractInMemoryRepository<Meal>> storage = new ConcurrentHashMap<>();
 
     {
         MealsUtil.adminMeals.forEach(meal -> save(ADMIN_ID, meal));
@@ -30,29 +28,20 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal save(int userId, Meal meal) {
-        final Map<Integer, Meal> meals = repository.computeIfAbsent(userId, u -> new ConcurrentHashMap<>());
-        if (meal.isNew()) {
-            meal.setId(getNextId());
-            meals.put(meal.getId(), meal);
-            return meal;
-        }
-        return meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
-    }
-
-    private int getNextId() {
-        return counter.incrementAndGet();
+        return storage.computeIfAbsent(userId, u -> new AbstractInMemoryRepository<Meal>() {
+        }).save(meal);
     }
 
     @Override
     public boolean delete(int userId, int id) {
-        final Map<Integer, Meal> meals = repository.get(userId);
-        return meals != null && meals.remove(id) != null;
+        return storage.computeIfAbsent(userId, u -> new AbstractInMemoryRepository<Meal>() {
+        }).delete(id);
     }
 
     @Override
     public Meal get(int userId, int id) {
-        final Map<Integer, Meal> meals = repository.get(userId);
-        return meals == null ? null : meals.get(id);
+        return storage.computeIfAbsent(userId, u -> new AbstractInMemoryRepository<Meal>() {
+        }).get(id);
     }
 
     @Override
@@ -62,9 +51,9 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getAllByInterval(int userId, LocalDate startDate, LocalDate endDate) {
-        Map<Integer, Meal> meals = repository.get(userId);
+        AbstractInMemoryRepository<Meal> meals = storage.get(userId);
         return meals == null ? Collections.emptyList() :
-                meals.values().stream()
+                meals.repository.values().stream()
                         .filter(meal -> DateTimeUtil.isBetweenDates(meal.getDate(), startDate, endDate))
                         .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                         .collect(Collectors.toList());
