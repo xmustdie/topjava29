@@ -18,10 +18,6 @@ public class DateTimeUtil {
         return isBetweenRightExclusive(date, startDate, endDate == null ? null : endDate.plusDays(1));
     }
 
-    public static boolean isBetweenLocalDateTimes(LocalDateTime ldt, LocalTime start, LocalTime end) {
-        return isBetweenRightExclusive(ldt.toLocalTime(), start, end);
-    }
-
     private static <T extends Comparable<T>> boolean isBetweenRightExclusive(T value, T start, T end) {
         return (start == null || value.compareTo(start) >= 0) && (end == null || value.compareTo(end) < 0);
     }

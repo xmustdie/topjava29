@@ -16,7 +16,7 @@ public class InMemoryUserRepository extends AbstractInMemoryRepository<User> imp
     @Override
     public List<User> getAll() {
         log.info("getAll");
-        return repository.values().stream()
+        return super.getAll().stream()
                 .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
                 .collect(Collectors.toList());
     }
@@ -24,7 +24,7 @@ public class InMemoryUserRepository extends AbstractInMemoryRepository<User> imp
     @Override
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
-        return repository.values().stream()
+        return super.getAll().stream()
                 .filter(user -> email.equalsIgnoreCase(user.getEmail()))
                 .findFirst()
                 .orElse(null);

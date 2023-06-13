@@ -53,7 +53,7 @@ public class InMemoryMealRepository implements MealRepository {
     public List<Meal> getAllByInterval(int userId, LocalDate startDate, LocalDate endDate) {
         AbstractInMemoryRepository<Meal> meals = storage.get(userId);
         return meals == null ? Collections.emptyList() :
-                meals.repository.values().stream()
+                meals.getAll().stream()
                         .filter(meal -> DateTimeUtil.isBetweenDates(meal.getDate(), startDate, endDate))
                         .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                         .collect(Collectors.toList());
