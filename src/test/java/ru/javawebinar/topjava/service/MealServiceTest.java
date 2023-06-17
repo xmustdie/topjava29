@@ -1,20 +1,19 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import static java.time.LocalDateTime.of;
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -24,19 +23,14 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
  * @author Andrei Durkin <a.durkin@goodt.me> at 17.06.2023
  */
 @ContextConfiguration({
-        "classpath:spring/spring-inmemory.xml"
+        "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-db.xml"
 })
 @RunWith(SpringRunner.class)
+@Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     @Autowired
     private MealService service;
-    @Autowired
-    private InMemoryMealRepository repository;
-
-    @Before
-    public void setUp() {
-        repository.init();
-    }
 
     @Test
     public void get() {
@@ -85,32 +79,25 @@ public class MealServiceTest {
 
     @Test
     public void update() {
-        Meal updated = getForUpdate();
+        Meal updated = getUpdated();
         service.update(updated, USER_ID);
         assertMatch(updated, service.get(updated.getId(), USER_ID));
     }
 
     @Test
     public void updateNotYourOwn() {
-        Meal updated = getForUpdate();
+        Meal updated = getUpdated();
         assertThrows(NotFoundException.class, () -> service.update(updated, ADMIN_ID));
     }
 
-    private Meal getForUpdate() {
-        return new Meal(MEAL1_ID, meal1.getDateTime().plusHours(2), "Обновленный завтрак", meal1.getCalories() * 2);
-    }
 
     @Test
     public void create() {
-        Meal created = service.create(getNewMeal(), USER_ID);
+        Meal created = service.create(getNew(), USER_ID);
         int newId = created.getId();
-        Meal newMeal = getNewMeal();
+        Meal newMeal = getNew();
         newMeal.setId(newId);
         assertMatch(created, newMeal);
         assertMatch(service.get(newId, USER_ID), newMeal);
-    }
-
-    private Meal getNewMeal() {
-        return new Meal(null, of(2020, Month.FEBRUARY, 1, 7, 0), "Новый завтрак", 800);
     }
 }

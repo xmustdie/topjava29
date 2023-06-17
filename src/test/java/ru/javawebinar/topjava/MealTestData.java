@@ -31,8 +31,16 @@ public class MealTestData {
 
     public static final List<Meal> meals = Arrays.asList(meal7, meal6, meal5, meal4, meal3, meal2, meal1);
 
+    public static Meal getUpdated() {
+        return new Meal(MEAL1_ID, meal1.getDateTime().plusHours(2), "Обновленный завтрак", meal1.getCalories() * 2);
+    }
+
+    public static Meal getNew() {
+        return new Meal(null, of(2020, Month.FEBRUARY, 1, 7, 0), "Новый завтрак", 800);
+    }
+
     public static void assertMatch(Meal actual, Meal expected) {
-        assertThat(actual).usingRecursiveComparison().ignoringFields("id").isEqualTo(expected);
+        assertThat(actual).usingRecursiveComparison().ignoringFields().isEqualTo(expected);
     }
 
     public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
