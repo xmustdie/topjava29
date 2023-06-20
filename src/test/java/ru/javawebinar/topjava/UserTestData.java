@@ -32,4 +32,8 @@ public class UserTestData {
         updated.setRoles(Collections.singletonList(Role.ADMIN));
         return updated;
     }
+
+    public static User getDuplicate() {
+        return new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.USER);
+    }
 }
