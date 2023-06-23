@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NamedQueries({
-        @NamedQuery(name = Meal.GET, query = "select m from Meal m " +
-                "where m.user.id =:userId and m.id=:id"),
-        @NamedQuery(name = Meal.DELETE, query = "delete from Meal m " +
-                "where m.user.id =:userId and m.id=:id"),
-        @NamedQuery(name = Meal.GET_ALL, query = "select m from Meal m " +
-                "where m.user.id =:userId " +
-                "order by m.dateTime desc"),
-        @NamedQuery(name = Meal.GET_BETWEEN_HALF_OPEN, query = "select m from Meal m " +
-                "where m.user.id=:userId and m.dateTime>=:startTime and m.dateTime<:endTime " +
-                "order by m.dateTime desc ")
+        @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m " +
+                "WHERE m.user.id =:userId AND m.id=:id"),
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m " +
+                "WHERE m.user.id =:userId AND m.id=:id"),
+        @NamedQuery(name = Meal.GET_ALL, query = "SELECT m FROM Meal m " +
+                "WHERE m.user.id =:userId " +
+                "ORDER BY m.dateTime desc"),
+        @NamedQuery(name = Meal.GET_BETWEEN_HALF_OPEN, query = "SELECT m FROM Meal m " +
+                "WHERE m.user.id=:userId AND m.dateTime>=:startTime AND m.dateTime<:endTime " +
+                "ORDER BY m.dateTime desc ")
 })
 @Entity
 @Table(name = "meal",
