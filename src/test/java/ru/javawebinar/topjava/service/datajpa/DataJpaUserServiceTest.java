@@ -9,7 +9,6 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.AbstractUserServiceTest;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import static ru.javawebinar.topjava.Profiles.DATAJPA;
