@@ -22,12 +22,13 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
  * @author Andrei Durkin <a.durkin@goodt.me> at 07.07.2023
  */
 
-public class AbstractMealController {
-    private static final Logger log = LoggerFactory.getLogger(MealRestController.class);
+public abstract class AbstractMealController {
+    private final Logger log;
 
-    private final MealService service;
+    protected final MealService service;
 
     public AbstractMealController(MealService service) {
+        log = LoggerFactory.getLogger(this.getClass());
         this.service = service;
     }
 

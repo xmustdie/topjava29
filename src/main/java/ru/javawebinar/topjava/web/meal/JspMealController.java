@@ -24,7 +24,7 @@ import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 
 @Controller
 @RequestMapping("/meals")
-public class JspMealController extends AbstractMealController{
+public class JspMealController extends AbstractMealController {
     public JspMealController(MealService service) {
         super(service);
     }
@@ -74,7 +74,7 @@ public class JspMealController extends AbstractMealController{
         LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
         LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
         LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
-        model.addAttribute("filter", getBetween(startDate, startTime, endDate, endTime));
+        model.addAttribute("meals", getBetween(startDate, startTime, endDate, endTime));
         return "meals";
     }
 }
